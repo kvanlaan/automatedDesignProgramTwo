@@ -24,6 +24,7 @@ public class Vpl2Schema {
         vAssociation.forEach(t->addTableSchema_assoc(t, pddSchema, vBox));
         
         // output
+        pddSchema.finishAndPropagateAttributes();
         pddSchema.print();
     }
     
@@ -36,22 +37,42 @@ public class Vpl2Schema {
         if (t.get("arrow1").equals("BLACK_DIAMOND")) {
             String tableName = vBox.getFirst(d->d.get("id").equals(t.get("cid2"))).get("name");
             String type = vBox.getFirst(d->d.get("id").equals(t.get("cid1"))).get("name");
-            pddSchema.getTableSchema(tableName).addColumns(t.get("role1") + ":" + type);
+            String roleName = !t.get("role1").isEmpty() ? t.get("role1") : t.get("middleLabel");
+            pddSchema.getTableSchema(tableName).addColumns(roleName + ":" + type);
+            
         } else if (t.get("arrow2").equals("BLACK_DIAMOND")) {
             String tableName = vBox.getFirst(d->d.get("id").equals(t.get("cid1"))).get("name");
             String type = vBox.getFirst(d->d.get("id").equals(t.get("cid2"))).get("name");
-            pddSchema.getTableSchema(tableName).addColumns(t.get("role2") + ":" + type);
+            String roleName = !t.get("role2").isEmpty() ? t.get("role2") : t.get("middleLabel");
+            pddSchema.getTableSchema(tableName).addColumns(roleName + ":" + type);
+            
         } else if (t.get("arrow1").equals("DIAMOND")) {
             String tableName = vBox.getFirst(d->d.get("id").equals(t.get("cid2"))).get("name");
             String type = vBox.getFirst(d->d.get("id").equals(t.get("cid1"))).get("name");
-            pddSchema.getTableSchema(tableName).addColumns(t.get("role1") + ":" + type);
+            String roleName = !t.get("role1").isEmpty() ? t.get("role1") : t.get("middleLabel");
+            pddSchema.getTableSchema(tableName).addColumns(roleName + ":" + type);
+            
         } else if (t.get("arrow2").equals("DIAMOND")) {
             String tableName = vBox.getFirst(d->d.get("id").equals(t.get("cid1"))).get("name");
             String type = vBox.getFirst(d->d.get("id").equals(t.get("cid2"))).get("name");
-            pddSchema.getTableSchema(tableName).addColumns(t.get("role2") + ":" + type);
-        } else if (t.get("arrow1").equals("TRIANGLE")) {
+            String roleName = !t.get("role2").isEmpty() ? t.get("role2") : t.get("middleLabel");
+            pddSchema.getTableSchema(tableName).addColumns(roleName + ":" + type);
             
-        } else if (t.get("arrow2").equals("TRIANGLE")) {
+        } else if (t.get("arrow1").equals("TRIANGLE") || t.get("arrow2").equals("TRIANGLE")) {
+            String suprName;
+            String subName;
+            if (t.get("arrow1").equals("TRIANGLE")) {
+                suprName = vBox.getFirst(d->d.get("id").equals(t.get("cid1"))).get("name");
+                subName = vBox.getFirst(d->d.get("id").equals(t.get("cid2"))).get("name");
+            } else {
+                suprName = vBox.getFirst(d->d.get("id").equals(t.get("cid2"))).get("name");
+                subName = vBox.getFirst(d->d.get("id").equals(t.get("cid1"))).get("name");
+            }
+            SubTableSchema sts = pddSchema.getSubTableSchema(suprName) != null ? pddSchema.getSubTableSchema(suprName) : new SubTableSchema(pddSchema.getTableSchema(suprName));
+            sts.addSubTableSchemas(pddSchema.getTableSchema(subName));
+            if (pddSchema.getSubTableSchema(suprName) == null) {
+                    pddSchema.addSubTableSchema(sts);
+            }
             
         } else {
             TableSchema tableSchema = new TableSchema(t.get("role1") + "_" + t.get("role2")).addColumn("id");

@@ -8,7 +8,7 @@ public class P2 {
     
     public static void main(String[] args) throws Exception {
         Vpl2Schema.main("test/PDD.vpl.pl", "test/PDD.schema.pl");
-        Vpl2Schema2.main("test/inh.vpl.pl", "test/inh.schema.pl");
+        Vpl2Schema.main("test/inh.vpl.pl", "test/inh.schema.pl");
         
         
 //        // Step 0: initialize database tables -- only person is needed
