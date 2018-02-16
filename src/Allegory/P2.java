@@ -6,7 +6,8 @@ import java.io.PrintStream;
 public class P2 {
     static String fileName = "test/x.PDD.pl";
     
-    public static void main(String[] args) throws Exception  {
+    public static void main(String[] args) throws Exception {
+        ClassConform.main("test/try.vpl.pl");
         Vpl2Schema.main("test/PDD.vpl.pl", "test/PDD.schema.pl");
         Vpl2Schema.main("test/inh.vpl.pl", "test/inh.schema.pl");
         Gen.main("test/PDD.vpl.pl", "test/output.java");
@@ -15,7 +16,7 @@ public class P2 {
    
 //        // Step 0: initialize database tables -- only person is needed
 //        Marquee1Argument mark = new Marquee1Argument(P2.class, ".PDD.pl", args);
-//        String inputFileName = mark.getInputFileName();
+//        String inputFileName = mark.getInputFileName();5
 //        PDD db = new PDD(inputFileName);
 //        PDD.Person person = db.new Person();
 //        PDD.Division division = db.new Division();
