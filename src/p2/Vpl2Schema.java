@@ -81,8 +81,13 @@ public class Vpl2Schema {
                 tableSchema.addColumn(vBox.getFirst(d->d.get("id").equals(t.get("cid1"))).get("name") + ":" + vBox.getFirst(d->d.get("id").equals(t.get("cid1"))).get("name"));
                 tableSchema.addColumn(vBox.getFirst(d->d.get("id").equals(t.get("cid2"))).get("name") + ":" + vBox.getFirst(d->d.get("id").equals(t.get("cid2"))).get("name"));
             } else {
-                tableSchema.addColumn(t.get("role1") + ":" + vBox.getFirst(d->d.get("id").equals(t.get("cid1"))).get("name"));
-                tableSchema.addColumn(t.get("role2") + ":" + vBox.getFirst(d->d.get("id").equals(t.get("cid2"))).get("name"));
+                if (!t.get("middleLabel").equals("")) {
+                    tableSchema.addColumn(t.get("middleLabel").split(",|\\_")[0] + ":" + vBox.getFirst(d->d.get("id").equals(t.get("cid1"))).get("name"));
+                    tableSchema.addColumn(t.get("middleLabel").split(",|\\_")[1] + ":" + vBox.getFirst(d->d.get("id").equals(t.get("cid2"))).get("name"));
+                } else {
+                    tableSchema.addColumn(t.get("role1") + ":" + vBox.getFirst(d->d.get("id").equals(t.get("cid1"))).get("name"));
+                    tableSchema.addColumn(t.get("role2") + ":" + vBox.getFirst(d->d.get("id").equals(t.get("cid2"))).get("name"));
+                }
             }
             
             pddSchema.addTableSchema(tableSchema);

@@ -8,11 +8,20 @@ import PrologDB.Table;
 import PrologDB.Tuple;
 import java.util.function.Predicate;
 
+import Violett.ClassParser;
+
 public class ClassConform extends Constraints {
-    /** conformance program for Violet .vpl.pl databases
+    /** conformance program for Violet .class.violet databases
      * @param args X.vpl.pl
      */
     public static void main(String... args) {
+        System.out.println("\n\nPart1...");
+        
+        // Preprocessing to translate .class.violet diagram into .vpl.pl database
+        String diagname = args[0].split("\\.")[0].split("\\/")[1];
+        ClassParser.main("test/" + diagname + ".class.violet", "test/" + diagname + ".vpl.pl");
+        
+        // Conform the .vpl.pl file
         String expl;
         
         // Step 1: Standard marquee processing
@@ -69,19 +78,39 @@ public class ClassConform extends Constraints {
         expl = "arrow1=TRIANGLE implies (arrow2 is empty and role1 is empty and role2 is empty)";
         implies(vAssociation, a1isTriangle, a2isEmpty.and(r1isEmpty.and(r2isEmpty)), expl, er);
         implies(vAssociation, a2isTriangle, a1isEmpty.and(r1isEmpty.and(r2isEmpty)), expl, er);
-
-        // C11 if arrow1==TRIANGLE and type1=c and type2=i, then lineStyle== dashed, symmetrically
-        Predicate<Tuple> candi = r -> r.is("type1", "c") && r.is("type2", "i");
+        
+        // C11 if arrow1==TRIANGLE and type1=i and type2=c, then lineStyle== dashed, symmetrically
         Predicate<Tuple> iandc = r -> r.is("type1", "i") && r.is("type2", "c");
+        Predicate<Tuple> candi = r -> r.is("type1", "c") && r.is("type2", "i");
         Predicate<Tuple> isDashed = r -> r.is("lineStyle", "DOTTED");
         expl = "linestyle should be dashed)";
-        implies(vAssociation, a1isTriangle.and(candi).or(a2isTriangle.and(iandc)),
+        implies(vAssociation, a1isTriangle.and(iandc).or(a2isTriangle.and(candi)),
                 isDashed, expl, er);
 
-        // if middleLabel != nothing error
-        Predicate<Tuple> misEmpty = r->!r.is("middleLabel","");
-        expl = "association should not have a middleLabel";
-        iftest(vAssociation,misEmpty,expl,er);
+//        // if middleLabel != nothing error
+//        Predicate<Tuple> misEmpty = r->!r.is("middleLabel","");
+//        expl = "association should not have a middleLabel";
+//        iftest(vAssociation,misEmpty,expl,er);
+
+        // C12 middleLabel and rolenames cannot co-exit
+        Predicate<Tuple> misEmpty = r->r.is("middleLabel","");
+        Predicate<Tuple> mnotEmpty = r->!r.is("middleLabel", "");
+        Predicate<Tuple> r1notEmpty = r->!r.is("role1", "");
+        Predicate<Tuple> r2notEmpty = r->!r.is("role2", "");
+        expl = "Association should have either the middleLabel or both role names";
+        implies(vAssociation, mnotEmpty, r1isEmpty.and(r2isEmpty), expl, er);
+        implies(vAssociation, misEmpty, r1notEmpty.and(r2notEmpty), expl, er);
+        
+        // C13 self-assiciation can only have a middleLabel separated by comma
+        Predicate<Tuple> selfAssociation = r-> r.get("cid1").equals(r.get("cid2"));
+        Predicate<Tuple> mWithComma = r-> r.get("middleLabel").split(",").length > 1;
+        expl = "Self-association cannot have role names, only middleLabel allowed";
+        implies(vAssociation, selfAssociation, mnotEmpty.and(r1isEmpty.and(r2isEmpty)), expl, er);
+        expl = "Self-association must have middleLabel separated by comma";
+        implies(vAssociation, selfAssociation, mWithComma, expl, er);
+        
+        // C14 no cardinalities should be presented
+        // isAssociatedWith no arrows
         
         // See if there are extends cycles
         Predicate<Tuple> candc = y -> y.is("type1", "c") && y.is("type2", "c");
@@ -97,7 +126,7 @@ public class ClassConform extends Constraints {
         Constraints.cycleCheck(ct2, er);
         
         // End report all errors
-        er.printReportEH(System.out);
+        er.printReport(System.out);
     }
                 
     private static void addTuple(Tuple t, Table ct, boolean direction) {
