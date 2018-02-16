@@ -1,4 +1,4 @@
-package p2;
+package Allegory;
 
 import MDELite.Marquee1Argument;
 import MDELite.Marquee2Arguments;

@@ -1,4 +1,4 @@
-package p2;
+package Allegory;
 
 ///catdb
 import PrologDB.DB;
