@@ -8,9 +8,11 @@ public class P2 {
     
     public static void main(String[] args) throws Exception {
         ClassConform.main("test/try.vpl.pl");
+        
         Vpl2Schema.main("test/PDD.vpl.pl", "test/PDD.schema.pl");
         Vpl2Schema.main("test/inh.vpl.pl", "test/inh.schema.pl");
-        Gen.main("test/PDD.schema.pl", "test/output.java");
+        
+        Gen.main("test/PDD.vpl.pl", "test/output.java");
         
         // By invoking method genclass with true, separate .java files will be produced per class.  That's about it.
    

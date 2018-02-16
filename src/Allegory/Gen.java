@@ -22,29 +22,41 @@ public class Gen extends RunningBear {
     static Table dual;
     static String appName;
     static Table cls, fld;
+    
     public static void main(String... args) {
-        
+        System.out.println("\n\nPart3...\n");
+
        // Step 1: standard marquee processing
-       
-        Marquee2Arguments mark = new Marquee2Arguments(Gen.class, ".PDD.pl", ".java", args);
+
+        Marquee2Arguments mark = new Marquee2Arguments(Gen.class, ".vpl.pl", ".java", args);
         RBSetup(mark, args); // opens "X.classes.pl" database, as specified on the command line
                              // variable db is the opened database
                              // file "X.java" is opened (or whatever command-line output is specified
         String inputFileName = mark.getInputFileName();
-    
-        
+
+
         // find a way to iterate through database tables
         // write a function to iterate through tables in a database
-        
-        
+        DB db_vpl = DB.readDataBase(inputFileName);
+        String db_name = db_vpl.getName();
+        DB db_schema = DB.readDataBase("test/" + db_name + ".schema.pl");
+
+        Table vBox = db_vpl.getTable("vBox");
+        Table vAssociation = db_vpl.getTable("vAssociation");  
+        vBox.forEach(t->some_functions(t));
+
         // Step 3: "generate" code using the runningbear...
         // cls = db.getTableEH("class");
         //cls.forEach(c->genClass(c,false));
-        
-// Step 4: done
+
+    // Step 4: done
     }
     
-        static void genClass(Tuple c, boolean separateFile) {
+    private static void some_functions(Tuple t) {
+        System.out.println(t.get("name"));
+    }
+    
+    static void genClass(Tuple c, boolean separateFile) {
         // Step 1: print the class header
         String sup = c.get("superName");
         String xtends = (!sup.equals("null"))?"extends "+sup:"";
