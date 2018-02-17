@@ -105,7 +105,7 @@ public class Department extends common<Department> {
      }
 
      public Division inDiv(){
-         Table result1 = table.rightSemiJoin("did",hasdeps_indiv,"Person");
+         Table result1 = table.rightSemiJoin("did",division,"Person");
          return new Division(result1);
      }
 
@@ -125,7 +125,7 @@ public class Division extends common<Division> {
       protected Division(String n, Tuple t) {  super(n,t); }
 
      public Department hasDeps(){
-         Table result1 = table.rightSemiJoin("vid",hasdeps_indiv,"Person");
+         Table result1 = table.rightSemiJoin("vid",department,"Person");
          return new Department(result1);
      }
 
