@@ -49,7 +49,6 @@ public class Gen extends RunningBear {
         // we need a gen function for association
 
         // done with class code
-
         footer();
 
         // Step 4: done
@@ -73,6 +72,22 @@ public class Gen extends RunningBear {
         return null;
     }
 
+    static String findFieldNameById(Table table, String id) {
+        for (Tuple x : table.tuples()) {
+            String tupleId = x.get("id");
+            if (tupleId.equals(id)) {
+                String fields = x.get("fields");
+                return parseFieldsForId(fields);
+            }
+        }
+        return null;
+    }
+
+    static String parseFieldsForId(String fields) {
+        String fieldId = fields.split("%")[0];
+        return fieldId;
+    }
+
     static void genAssociation(Table table, Tuple c) {
         String name = c.get("id");
 
@@ -94,7 +109,7 @@ public class Gen extends RunningBear {
     }
 
     static void common() {
-        l(      "abstract class common <T extends common> {\n"
+        l("abstract class common <T extends common> {\n"
                 + "///commonT\n"
                 + "       Table table;\n"
                 + "\n"
@@ -181,17 +196,35 @@ public class Gen extends RunningBear {
 //    }
 
         for (Tuple a : associations.tuples()) {
-            if (c.get("id").equals(a.get("cid2"))) {
-             
-                l("     public " + findNameById(table, a.get("cid1")) + " " + a.get("role1") + "{\n;"
-                           // we need to fill in the values here, everything is hardcoded
-                        + "          Table result1 = table.rightSemiJoin(\"pid\",employs_worksin,\"Person\");\n"
-                        + "          Table result2 = result1.rightSemiJoin(\"Department\",department,\"did\");\n"
-                        + "          return new Department(result2);\n"
-                        + "       }\n"
-                        + "   ");
+            Boolean twoWay = true;
+            if (a.get("arrow1").equals("BLACK_DIAMOND") || a.get("arrow2").equals("BLACK_DIAMOND")) {
+                twoWay = false;
+            }
+            if (c.get("id").equals(a.get("cid1"))) {
+                String retType = findNameById(table, a.get("cid2"));
+                String classTypeFieldId = parseFieldsForId(c.get("fields"));
+                String retTypeFieldId = findFieldNameById(table, a.get("cid2"));
+                l("     public " + retType + " " + a.get("role2") + "(){\n"
+                        + "         Table result1 = table.rightSemiJoin(\"" + classTypeFieldId + "\"," + a.get("role1").toLowerCase() + "_" + a.get("role2").toLowerCase() + ",\"Person\");");
+                if (twoWay) {
+                    l("         Table result2 = result1.rightSemiJoin(\"" + retType + "\"," + retType.toLowerCase() + ",\"" + retTypeFieldId + "\");");
+                }
+                l("         return new " + retType + "(result2);\n"
+                        + "}\n");
             }
 
+            if (c.get("id").equals(a.get("cid2"))) {
+                String retType = findNameById(table, a.get("cid1"));
+                String classTypeFieldId = parseFieldsForId(c.get("fields"));
+                String retTypeFieldId = findFieldNameById(table, a.get("cid1"));
+                l("     public " + retType + " " + a.get("role2") + "(){\n"
+                        + "         Table result1 = table.rightSemiJoin(\"" + classTypeFieldId + "\"," + a.get("role1").toLowerCase() + "_" + a.get("role2").toLowerCase() + ",\"Person\");");
+                if (twoWay) {
+                    l("         Table result2 = result1.rightSemiJoin(\"" + retType + "\"," + retType.toLowerCase() + ",\"" + retTypeFieldId + "\");");
+                }
+                l("         return new " + retType + "(result2);\n"
+                        + "}\n");
+            }
         }
         l("}");
         l(1);

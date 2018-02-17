@@ -72,12 +72,24 @@ public class Person extends common<Person> {
         }
 
 
-     public Person childrenOf{
-;          Table result1 = table.rightSemiJoin("pid",employs_worksin,"Person");
-          Table result2 = result1.rightSemiJoin("Department",department,"did");
-          return new Department(result2);
-       }
-   
+     public Department worksin(){
+         Table result1 = table.rightSemiJoin("pid",employs_worksin,"Person");
+         Table result2 = result1.rightSemiJoin("Department",department,"did");
+         return new Department(result2);
+}
+
+     public Person parentsOf(){
+         Table result1 = table.rightSemiJoin("pid",childrenof_parentsof,"Person");
+         Table result2 = result1.rightSemiJoin("Person",person,"pid");
+         return new Person(result2);
+}
+
+     public Person parentsOf(){
+         Table result1 = table.rightSemiJoin("pid",childrenof_parentsof,"Person");
+         Table result2 = result1.rightSemiJoin("Person",person,"pid");
+         return new Person(result2);
+}
+
 }
 
 public class Department extends common<Department> {
@@ -100,12 +112,17 @@ public class Department extends common<Department> {
         }
 
 
-     public Person employs{
-;          Table result1 = table.rightSemiJoin("pid",employs_worksin,"Person");
-          Table result2 = result1.rightSemiJoin("Department",department,"did");
-          return new Department(result2);
-       }
-   
+     public Person worksin(){
+         Table result1 = table.rightSemiJoin("did",employs_worksin,"Person");
+         Table result2 = result1.rightSemiJoin("Person",person,"pid");
+         return new Person(result2);
+}
+
+     public Division inDiv(){
+         Table result1 = table.rightSemiJoin("did",hasdeps_indiv,"Person");
+         return new Division(result2);
+}
+
 }
 
 public class Division extends common<Division> {
@@ -128,12 +145,11 @@ public class Division extends common<Division> {
         }
 
 
-     public Department hasDeps{
-;          Table result1 = table.rightSemiJoin("pid",employs_worksin,"Person");
-          Table result2 = result1.rightSemiJoin("Department",department,"did");
-          return new Department(result2);
-       }
-   
+     public Department inDiv(){
+         Table result1 = table.rightSemiJoin("vid",hasdeps_indiv,"Person");
+         return new Department(result2);
+}
+
 }
 
 }
