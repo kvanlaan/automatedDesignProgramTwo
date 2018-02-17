@@ -36,7 +36,7 @@ public class Gen extends RunningBear {
         header();
 
         mainClass();
-
+        common();
         //  classes();
         DB db_vpl = DB.readDataBase(inputFileName);
         String db_name = db_vpl.getName();
@@ -44,12 +44,45 @@ public class Gen extends RunningBear {
 
         Table vBox = db_vpl.getTable("vBox");
         Table vAssociation = db_vpl.getTable("vAssociation");
-        vBox.forEach(t -> genClass(t));
+        vBox.forEach(t -> genClass(vBox, t, vAssociation));
+//        vAssociation.forEach(t -> genAssociation(vbox, t));
         // we need a gen function for association
-        
-        common();
+
+        // done with class code
+
         footer();
+
         // Step 4: done
+    }
+
+    static String findNameByType(Table table, String type) {
+        for (Tuple x : table.tuples()) {
+            if (x.get("type").equals(type)) {
+                return x.get("name");
+            }
+        }
+        return null;
+    }
+
+    static String findNameById(Table table, String id) {
+        for (Tuple x : table.tuples()) {
+            if (x.get("id").equals(id)) {
+                return x.get("name");
+            }
+        }
+        return null;
+    }
+
+    static void genAssociation(Table table, Tuple c) {
+        String name = c.get("id");
+
+        // make sure to put on cid2
+        l("public " + findNameById(table, c.get("cid1")) + " " + c.get("role1") + "{\n;"
+                + "          Table result1 = table.rightSemiJoin(\"pid\",employs_worksin,\"Person\");\n"
+                + "          Table result2 = result1.rightSemiJoin(\"Department\",department,\"did\");\n"
+                + "          return new Department(result2);\n"
+                + "       }\n"
+                + "   ");
     }
 
     static void footer() {
@@ -61,7 +94,7 @@ public class Gen extends RunningBear {
     }
 
     static void common() {
-        l("abstract class common <T extends common> {\n"
+        l(      "abstract class common <T extends common> {\n"
                 + "///commonT\n"
                 + "       Table table;\n"
                 + "\n"
@@ -117,7 +150,7 @@ public class Gen extends RunningBear {
                 + "import java.util.function.Predicate;\n");
     }
 
-    static void genClass(Tuple c) {
+    static void genClass(Table table, Tuple c, Table associations) {
         // Step 1: print the class header
         String name = c.get("name");
         String xtends = "extends common<" + name + ">";
@@ -144,26 +177,23 @@ public class Gen extends RunningBear {
                 + "          }\n"
                 + "          table = tab;\n"
                 + "        }\n"
-                + "\n"
-                + "       public T select(Predicate<Tuple> p) {\n"
-                + "          Table result = table.filter(p);\n"
-                + "          return New(result);\n"
-                + "        }\n"
-                + "\n"
-                + "       protected abstract T New(Table t);\n"
-                + "\n"
-                + "       public T id() { return New(table); }\n"
-                + "\n"
-                + "       public void print() { table.print(System.out); }\n"
-                + "       public void forEach(Consumer<Tuple> action) { table.stream().forEach(t -> action.accept(t)); }\n"
-                + "\n"
-                + "       public T intersect(T tab) { return New(this.table.intersect(tab.table)); }\n"
-                + "\n"
-                + "       public int size() { return this.table.count(); }\n"
-                + "\n"
-                + "       public boolean equals(T tab) { return this.table.equals(tab.table); }");
+                + "\n");
+//    }
+
+        for (Tuple a : associations.tuples()) {
+            if (c.get("id").equals(a.get("cid2"))) {
+             
+                l("     public " + findNameById(table, a.get("cid1")) + " " + a.get("role1") + "{\n;"
+                           // we need to fill in the values here, everything is hardcoded
+                        + "          Table result1 = table.rightSemiJoin(\"pid\",employs_worksin,\"Person\");\n"
+                        + "          Table result2 = result1.rightSemiJoin(\"Department\",department,\"did\");\n"
+                        + "          return new Department(result2);\n"
+                        + "       }\n"
+                        + "   ");
+            }
+
+        }
         l("}");
         l(1);
-//    }
     }
 }
