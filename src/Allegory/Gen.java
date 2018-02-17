@@ -218,7 +218,7 @@ public class Gen extends RunningBear {
 
         for (Tuple a : associations.tuples()) {
             Boolean twoWay = true;
-            if (a.get("arrow1").equals("BLACK_DIAMOND") || a.get("arrow2").equals("BLACK_DIAMOND")) {
+            if (a.get("arrow1").equals("BLACK_DIAMOND") || a.get("arrow2").equals("BLACK_DIAMOND") || a.get("arrow1").equals("DIAMOND") || a.get("arrow2").equals("DIAMOND")) {
                 twoWay = false;
             }
             
