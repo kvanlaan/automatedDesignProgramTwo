@@ -7,7 +7,6 @@ import PrologDB.ErrorReport;
 import PrologDB.Table;
 import PrologDB.Tuple;
 import java.util.function.Predicate;
-
 import Violett.ClassParser;
 
 public class ClassConform extends Constraints {
@@ -15,13 +14,13 @@ public class ClassConform extends Constraints {
      * @param args X.vpl.pl
      */
     public static void main(String... args) {
-        System.out.println("\n\nPart1...");
-        
         // Preprocessing to translate .class.violet diagram into .vpl.pl database
         String diagname = args[0].split("\\.")[0].split("\\/")[1];
         ClassParser.main("test/" + diagname + ".class.violet", "test/" + diagname + ".vpl.pl");
         
         // Conform the .vpl.pl file
+        System.out.println("\n\nPart1...");
+        System.out.format("Conforming Violet diagram: %s:\n\n", diagname + ".class.violet");
         String expl;
         
         // Step 1: Standard marquee processing
@@ -92,16 +91,66 @@ public class ClassConform extends Constraints {
 //        expl = "association should not have a middleLabel";
 //        iftest(vAssociation,misEmpty,expl,er);
 
-        // C12 middleLabel and rolenames cannot co-exit
+        // C12 middleLabel should never be numbers
+        Predicate<Tuple> misNumber = r -> {
+            String label = r.get("middleLabel");
+            
+            if (label.equals("")) {
+                return false;
+            }
+
+            try {
+               Integer.parseInt(label);
+               return true;
+            } catch(Exception e) {
+               return false;
+            }
+        };
+        expl = "MiddleLabel should never be pure numbers";
+        iftest(vAssociation, misNumber, expl, er);
+        
+        // C13 middleLabel and rolenames cannot co-exist
         Predicate<Tuple> misEmpty = r->r.is("middleLabel","");
         Predicate<Tuple> mnotEmpty = r->!r.is("middleLabel", "");
-        Predicate<Tuple> r1notEmpty = r->!r.is("role1", "");
-        Predicate<Tuple> r2notEmpty = r->!r.is("role2", "");
+//        Predicate<Tuple> r1notEmpty = r->!r.is("role1", "");
+//        Predicate<Tuple> r2notEmpty = r->!r.is("role2", "");
+        
+        Predicate<Tuple> r1notEmpty = r -> {
+            String label = r.get("role1");
+            
+            if (label.equals("")) {
+                return false;
+            }
+
+            try {
+               Integer.parseInt(label);
+               return false;
+            } catch(Exception e) {
+               return true;
+            }
+        };
+        
+        Predicate<Tuple> r2notEmpty = r -> {
+            String label = r.get("role2");
+            
+            if (label.equals("")) {
+                return false;
+            }
+
+            try {
+               Integer.parseInt(label);
+               return false;
+            } catch(Exception e) {
+               return true;
+            }
+        };
+        
+        
         expl = "Association should have either the middleLabel or both role names";
         implies(vAssociation, mnotEmpty, r1isEmpty.and(r2isEmpty), expl, er);
         implies(vAssociation, misEmpty, r1notEmpty.and(r2notEmpty), expl, er);
         
-        // C13 self-assiciation can only have a middleLabel separated by comma
+        // C14 self-assiciation can only have a middleLabel separated by comma
         Predicate<Tuple> selfAssociation = r-> r.get("cid1").equals(r.get("cid2"));
         Predicate<Tuple> mWithComma = r-> r.get("middleLabel").split(",").length > 1;
         expl = "Self-association cannot have role names, only middleLabel allowed";
@@ -109,8 +158,42 @@ public class ClassConform extends Constraints {
         expl = "Self-association must have middleLabel separated by comma";
         implies(vAssociation, selfAssociation, mWithComma, expl, er);
         
-        // C14 no cardinalities should be presented
+        // If arrow1==DIAMOND implies arrow2isEmpty and role1notNumber (symmetrical);
+        Predicate<Tuple> a1isDiamond = t -> t.is("arrow1", "DIAMOND");
+        Predicate<Tuple> a2isDiamond = t -> t.is("arrow2", "DIAMOND");
+        Predicate<Tuple> r1notNumber = r -> {
+            try {
+               Integer.parseInt(r.get("role1"));
+               return false;
+            } catch(Exception e) {
+               return true;
+            }
+        };
+        Predicate<Tuple> r2notNumber = r -> {
+            try {
+               Integer.parseInt(r.get("role2"));
+               return false;
+            } catch(Exception e) {
+               return true;
+            }
+        };
+        expl = "arrow1=DIAMOND implies (arrow2 is empty and role1 does not have cardinalities)";
+        implies(vAssociation, a1isDiamond, a2isEmpty.and(r1notNumber), expl, er);
+        implies(vAssociation, a2isDiamond, a1isEmpty.and(r2notNumber), expl, er);
+        
+        // If arrow1==BLACK_DIAMOND implies arrow2isEmpty and role1notNumber (symmetrical);
+        Predicate<Tuple> a1isBDiamond = t -> t.is("arrow1", "BLACK_DIAMOND");
+        Predicate<Tuple> a2isBDiamond = t -> t.is("arrow2", "BLACK_DIAMOND");
+        expl = "arrow1=BLACK_DIAMOND implies (arrow2 is empty and role1 does not have cardinalities)";
+        implies(vAssociation, a1isBDiamond, a2isEmpty.and(r1notNumber), expl, er);
+        implies(vAssociation, a2isBDiamond, a1isEmpty.and(r2notNumber), expl, er);
+        
         // isAssociatedWith no arrows
+        Predicate<Tuple> a1isV = t-> t.is("arrow1", "V");
+        Predicate<Tuple> a2isV = t-> t.is("arrow2", "V");
+        expl = "associations do not need to have V-type arrowheads";
+        iftest(vAssociation, a1isV, expl, er);
+        iftest(vAssociation, a2isV, expl, er);
         
         // See if there are extends cycles
         Predicate<Tuple> candc = y -> y.is("type1", "c") && y.is("type2", "c");
@@ -125,8 +208,11 @@ public class ClassConform extends Constraints {
         vAssociation.stream().filter(a2isTriangle.and(candc.negate())).forEach(t->addTuple(t,ct2,false));
         Constraints.cycleCheck(ct2, er);
         
-        // End report all errors
-        er.printReport(System.out);
+        // End: print the schema and report all corresponding errors
+        db.print();
+        if (!er.printReport(System.out)) {
+            System.out.format("All constraints satisfied for %s!\n", inputFileName);
+        }
     }
                 
     private static void addTuple(Tuple t, Table ct, boolean direction) {
