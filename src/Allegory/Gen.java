@@ -185,7 +185,7 @@ public class Gen extends RunningBear {
 
     public static void header() {
 
-        l("package Allegory;\n"
+        l("package " + BIGNAME + ";\n"
                 + "\n"
                 + "///catdb\n"
                 + "import PrologDB.DB;\n"
