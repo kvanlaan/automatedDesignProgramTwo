@@ -22,6 +22,7 @@ public class Gen extends RunningBear {
     static Table dual;
     static String appName;
     static Table cls, fld;
+    static String BIGNAME;
 
     public static void main(String... args) {
         System.out.println("\n\nPart3...\n");
@@ -33,18 +34,37 @@ public class Gen extends RunningBear {
         // file "X.java" is opened (or whatever command-line output is specified
         String inputFileName = mark.getInputFileName();
 
-        header();
-
-        mainClass();
-        common();
-        //  classes();
         DB db_vpl = DB.readDataBase(inputFileName);
         String db_name = db_vpl.getName();
-        DB db_schema = DB.readDataBase("test/" + db_name + ".schema.pl");
-
         Table vBox = db_vpl.getTable("vBox");
         Table vAssociation = db_vpl.getTable("vAssociation");
+        
+        DBSchema db_schema = DBSchema.readSchema("test/" + db_name + ".schema.pl");
+        List<TableSchema> tables = db_schema.getTableSchemas();
+        
+        BIGNAME = db_name;
+        
+        header();
+        mainClass(tables);
+        common();
+        
+        //  classes();
         vBox.forEach(t -> genClass(vBox, t, vAssociation));
+        for (TableSchema table : tables) {
+            String className = table.getName();
+            Tuple c = vBox.getFirst(d->d.get("name").equals(className));
+            if (c == null) {
+                l("\tpublic class " + className + " extends common <" + className + "> {\n");
+                l("\t\tprotected " + className + " New(Table t) { return new " + className + "(t);}\n");
+                l("\t\tpublic " + className + "() {table = " + className + ";}\n");
+                l("\t\tpublic " + className + "(Table t) { super(\"" + className + "\", t); }\n");
+                l("\t\tpublic " + className + "(Tuple t) { super(\"" + className + "\", t); }\n");
+                l("\t\tprotected " + className + "(String n, Table t) { super(n,t);}\n");
+                l("\t\tprotected " + className + "(String n, Tuple t) { super(n,t);}\n");
+                l("\t}\n");
+            }
+        }
+        
 //        vAssociation.forEach(t -> genAssociation(vbox, t));
         // we need a gen function for association
 
@@ -104,8 +124,23 @@ public class Gen extends RunningBear {
         l("}");
     }
 
-    static void mainClass() {
-        l("public class PDD {\n");
+    static void mainClass(List<TableSchema> tables) {
+        l("public class " + BIGNAME + " {\n");
+        l("\tDB db;");
+        for (TableSchema table : tables) {
+            String s = table.getName().toLowerCase();
+            l("\tpublic Table " + s + ";");
+        }
+        l(1);
+        
+        l("\tpublic " + BIGNAME + "(String fileName) {");
+        l("\t\tdb = DB.readDataBase(fileName);");
+        for (TableSchema table : tables) {
+            String S = table.getName();
+            String s = S.toLowerCase();
+            l("\t\t" + s + " = db.getTableEH(\"" + S + "\");");
+        }
+        l("\t}\n");
     }
 
     static void common() {
