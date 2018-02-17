@@ -170,7 +170,7 @@ public class Division extends common<Division> {
 
 		protected childrenOf_parentsOf New(Table t) { return new childrenOf_parentsOf(t);}
 
-		public childrenOf_parentsOf() {table = childrenOf_parentsOf;}
+		public childrenOf_parentsOf() {table = childrenof_parentsof;}
 
 		public childrenOf_parentsOf(Table t) { super("childrenOf_parentsOf", t); }
 

@@ -55,7 +55,7 @@ public class Gen extends RunningBear {
             if (c == null) {
                 l("\tpublic class " + className + " extends common <" + className + "> {\n");
                 l("\t\tprotected " + className + " New(Table t) { return new " + className + "(t);}\n");
-                l("\t\tpublic " + className + "() {table = " + className + ";}\n");
+                l("\t\tpublic " + className + "() {table = " + className.toLowerCase() + ";}\n");
                 l("\t\tpublic " + className + "(Table t) { super(\"" + className + "\", t); }\n");
                 l("\t\tpublic " + className + "(Tuple t) { super(\"" + className + "\", t); }\n");
                 l("\t\tprotected " + className + "(String n, Table t) { super(n,t);}\n");
