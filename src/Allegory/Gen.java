@@ -30,14 +30,10 @@ public class Gen extends RunningBear {
         Marquee2Arguments mark = new Marquee2Arguments(Gen.class, ".vpl.pl", ".java", args);
         RBSetup(mark, args); // opens "X.classes.pl" database, as specified on the command line
         // variable db is the opened database
-        // file "X.java" is opened (or whatever command-line output is specified
         String inputFileName = mark.getInputFileName();
-
         header();
-
         mainClass();
         common();
-        //  classes();
         DB db_vpl = DB.readDataBase(inputFileName);
         String db_name = db_vpl.getName();
         DB db_schema = DB.readDataBase("test/" + db_name + ".schema.pl");
@@ -45,13 +41,7 @@ public class Gen extends RunningBear {
         Table vBox = db_vpl.getTable("vBox");
         Table vAssociation = db_vpl.getTable("vAssociation");
         vBox.forEach(t -> genClass(vBox, t, vAssociation));
-//        vAssociation.forEach(t -> genAssociation(vbox, t));
-        // we need a gen function for association
-
-        // done with class code
         footer();
-
-        // Step 4: done
     }
 
     static String findNameByType(Table table, String type) {
@@ -170,9 +160,6 @@ public class Gen extends RunningBear {
         String name = c.get("name");
         String xtends = "extends common<" + name + ">";
         l("public class %s %s {", c.get("name"), xtends);
-//        
-//        // Step 2: compute table of c's fields
-//        //
         List cfields = c.getColumns();
 
         l("     Table table;\n"
@@ -223,7 +210,7 @@ public class Gen extends RunningBear {
                     l("         Table result2 = result1.rightSemiJoin(\"" + retType + "\"," + retType.toLowerCase() + ",\"" + retTypeFieldId + "\");");
                 }
                 l("         return new " + retType + "(result2);\n"
-                        + "}\n");
+                        + "     }\n");
             }
         }
         l("}");
