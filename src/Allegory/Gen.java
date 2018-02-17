@@ -217,7 +217,7 @@ public class Gen extends RunningBear {
                 String retType = findNameById(table, a.get("cid1"));
                 String classTypeFieldId = parseFieldsForId(c.get("fields"));
                 String retTypeFieldId = findFieldNameById(table, a.get("cid1"));
-                l("     public " + retType + " " + a.get("role2") + "(){\n"
+                l("     public " + retType + " " + a.get("role1") + "(){\n"
                         + "         Table result1 = table.rightSemiJoin(\"" + classTypeFieldId + "\"," + a.get("role1").toLowerCase() + "_" + a.get("role2").toLowerCase() + ",\"Person\");");
                 if (twoWay) {
                     l("         Table result2 = result1.rightSemiJoin(\"" + retType + "\"," + retType.toLowerCase() + ",\"" + retTypeFieldId + "\");");

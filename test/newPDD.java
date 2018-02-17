@@ -84,7 +84,7 @@ public class Person extends common<Person> {
          return new Person(result2);
 }
 
-     public Person parentsOf(){
+     public Person childrenOf(){
          Table result1 = table.rightSemiJoin("pid",childrenof_parentsof,"Person");
          Table result2 = result1.rightSemiJoin("Person",person,"pid");
          return new Person(result2);
@@ -112,7 +112,7 @@ public class Department extends common<Department> {
         }
 
 
-     public Person worksin(){
+     public Person employs(){
          Table result1 = table.rightSemiJoin("did",employs_worksin,"Person");
          Table result2 = result1.rightSemiJoin("Person",person,"pid");
          return new Person(result2);
@@ -145,7 +145,7 @@ public class Division extends common<Division> {
         }
 
 
-     public Department inDiv(){
+     public Department hasDeps(){
          Table result1 = table.rightSemiJoin("vid",hasdeps_indiv,"Person");
          return new Department(result2);
 }
