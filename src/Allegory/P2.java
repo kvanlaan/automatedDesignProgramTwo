@@ -13,7 +13,7 @@ public class P2 {
         Vpl2Schema.main("test/PDD.vpl.pl", "test/PDD.schema.pl");
         Vpl2Schema.main("test/inh.vpl.pl", "test/inh.schema.pl");
         
-        Gen.main("test/PDD.vpl.pl", "test/output.java");
+        Gen.main("test/PDD.vpl.pl", "test/newPDD.java");
         
         // By invoking method genclass with true, separate .java files will be produced per class.  That's about it.
    
