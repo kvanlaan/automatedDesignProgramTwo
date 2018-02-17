@@ -7,7 +7,8 @@ public class P2 {
     static String fileName = "test/x.PDD.pl";
     
     public static void main(String[] args) throws Exception {
-        ClassConform.main("test/try.vpl.pl");
+        ClassConform.main("test/try_good.vpl.pl");
+        ClassConform.main("test/try_bad.vpl.pl");
         
         Vpl2Schema.main("test/PDD.vpl.pl", "test/PDD.schema.pl");
         Vpl2Schema.main("test/inh.vpl.pl", "test/inh.schema.pl");
