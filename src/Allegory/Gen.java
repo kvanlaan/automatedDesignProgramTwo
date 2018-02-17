@@ -204,49 +204,63 @@ public class Gen extends RunningBear {
         l("public class %s %s {", c.get("name"), xtends);
         List cfields = c.getColumns();
 
-        l("      protected " + name + " New(Table t) { return new " + name + "(t); }\n"
+        l("     protected " + name + " New(Table t) { return new " + name + "(t); }\n"
                 + "\n"
-                + "       public " + name + "() { table = " + name.toLowerCase() + "; }\n"
+                + "      public " + name + "() { table = " + name.toLowerCase() + "; }\n"
                 + "\n"
-                + "       public " + name + "(Table t) { super(\"" + name + "\",t); }\n"
+                + "      public " + name + "(Table t) { super(\"" + name + "\",t); }\n"
                 + "\n"
-                + "       public " + name + "(Tuple t) {  super(\"" + name + "\",t); }\n"
+                + "      public " + name + "(Tuple t) {  super(\"" + name + "\",t); }\n"
                 + "\n"
-                + "       protected " + name + "(String n, Table t) { super(n,t); }\n"
+                + "      protected " + name + "(String n, Table t) { super(n,t); }\n"
                 + "\n"
-                + "       protected " + name + "(String n, Tuple t) {  super(n,t); }\n"
-                + "\n");
-//    }
+                + "      protected " + name + "(String n, Tuple t) {  super(n,t); }\n");
 
         for (Tuple a : associations.tuples()) {
             Boolean twoWay = true;
             if (a.get("arrow1").equals("BLACK_DIAMOND") || a.get("arrow2").equals("BLACK_DIAMOND")) {
                 twoWay = false;
             }
+            
+   
             if (c.get("id").equals(a.get("cid1"))) {
                 String retType = findNameById(table, a.get("cid2"));
                 String classTypeFieldId = parseFieldsForId(c.get("fields"));
                 String retTypeFieldId = findFieldNameById(table, a.get("cid2"));
+                String classNodeOne = a.get("role1").toLowerCase() + "_" + a.get("role2").toLowerCase(); 
+                if(!twoWay) {
+                    classNodeOne =  retType.toLowerCase();
+                }
                 l("     public " + retType + " " + a.get("role2") + "(){\n"
-                        + "         Table result1 = table.rightSemiJoin(\"" + classTypeFieldId + "\"," + a.get("role1").toLowerCase() + "_" + a.get("role2").toLowerCase() + ",\"Person\");");
+                        + "         Table result1 = table.rightSemiJoin(\"" + classTypeFieldId + "\"," + classNodeOne + ",\"Person\");");
                 if (twoWay) {
                     l("         Table result2 = result1.rightSemiJoin(\"" + retType + "\"," + retType.toLowerCase() + ",\"" + retTypeFieldId + "\");");
+                     l("         return new " + retType + "(result2);\n"
+                        + "     }\n");
+                } else {
+                l("         return new " + retType + "(result1);\n"
+                        + "     }\n");
                 }
-                l("         return new " + retType + "(result2);\n"
-                        + "}\n");
             }
 
             if (c.get("id").equals(a.get("cid2"))) {
                 String retType = findNameById(table, a.get("cid1"));
                 String classTypeFieldId = parseFieldsForId(c.get("fields"));
                 String retTypeFieldId = findFieldNameById(table, a.get("cid1"));
+                String classNodeOne = a.get("role1").toLowerCase() + "_" + a.get("role2").toLowerCase(); 
+                if(!twoWay) {
+                    classNodeOne =  retType.toLowerCase();
+                }
                 l("     public " + retType + " " + a.get("role1") + "(){\n"
-                        + "         Table result1 = table.rightSemiJoin(\"" + classTypeFieldId + "\"," + a.get("role1").toLowerCase() + "_" + a.get("role2").toLowerCase() + ",\"Person\");");
+                        + "         Table result1 = table.rightSemiJoin(\"" + classTypeFieldId + "\"," + classNodeOne + ",\"Person\");");
                 if (twoWay) {
                     l("         Table result2 = result1.rightSemiJoin(\"" + retType + "\"," + retType.toLowerCase() + ",\"" + retTypeFieldId + "\");");
-                }
-                l("         return new " + retType + "(result2);\n"
+                     l("         return new " + retType + "(result2);\n"
                         + "     }\n");
+                } else {
+                l("         return new " + retType + "(result1);\n"
+                        + "     }\n");
+                }
             }
         }
         l("}");
