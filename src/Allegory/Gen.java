@@ -162,23 +162,17 @@ public class Gen extends RunningBear {
         l("public class %s %s {", c.get("name"), xtends);
         List cfields = c.getColumns();
 
-        l("     Table table;\n"
+        l("      protected " + name + " New(Table t) { return new " + name + "(t); }\n"
                 + "\n"
-                + "       protected " + name + "() { }\n"
+                + "       public " + name + "() { table = " + name.toLowerCase() + "; }\n"
                 + "\n"
-                + "       protected " + name + "(String tableName, Tuple t) {\n"
-                + "          TableSchema ts = t.getSchema();\n"
-                + "          if (!ts.getName().equals(tableName)) \n"
-                + "            throw new RuntimeException(\"assigning non-\"+tableName+\" table to \"+tableName);\n"
-                + "          table = new Table(ts).add(t);\n"
-                + "       }\n"
+                + "       public " + name + "(Table t) { super(\"" + name + "\",t); }\n"
                 + "\n"
-                + "       protected " + name + "(String tableName, Table tab) {\n"
-                + "          if (!tab.getSchema().getName().equals(tableName)) {\n"
-                + "             throw new RuntimeException(\"assigning non-\"+tableName+\" table to \"+tableName);\n"
-                + "          }\n"
-                + "          table = tab;\n"
-                + "        }\n"
+                + "       public " + name + "(Tuple t) {  super(\"" + name + "\",t); }\n"
+                + "\n"
+                + "       protected " + name + "(String n, Table t) { super(n,t); }\n"
+                + "\n"
+                + "       protected " + name + "(String n, Tuple t) {  super(n,t); }\n"
                 + "\n");
 //    }
 
