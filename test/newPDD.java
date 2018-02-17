@@ -53,30 +53,29 @@ abstract class common <T extends common> {
 
 
 public class Person extends common<Person> {
-      protected Person New(Table t) { return new Person(t); }
+     protected Person New(Table t) { return new Person(t); }
 
-       public Person() { table = person; }
+      public Person() { table = person; }
 
-       public Person(Table t) { super("Person",t); }
+      public Person(Table t) { super("Person",t); }
 
-       public Person(Tuple t) {  super("Person",t); }
+      public Person(Tuple t) {  super("Person",t); }
 
-       protected Person(String n, Table t) { super(n,t); }
+      protected Person(String n, Table t) { super(n,t); }
 
-       protected Person(String n, Tuple t) {  super(n,t); }
-
+      protected Person(String n, Tuple t) {  super(n,t); }
 
      public Department worksin(){
          Table result1 = table.rightSemiJoin("pid",employs_worksin,"Person");
          Table result2 = result1.rightSemiJoin("Department",department,"did");
          return new Department(result2);
-}
+     }
 
      public Person parentsOf(){
          Table result1 = table.rightSemiJoin("pid",childrenof_parentsof,"Person");
          Table result2 = result1.rightSemiJoin("Person",person,"pid");
          return new Person(result2);
-}
+     }
 
      public Person childrenOf(){
          Table result1 = table.rightSemiJoin("pid",childrenof_parentsof,"Person");
@@ -87,18 +86,17 @@ public class Person extends common<Person> {
 }
 
 public class Department extends common<Department> {
-      protected Department New(Table t) { return new Department(t); }
+     protected Department New(Table t) { return new Department(t); }
 
-       public Department() { table = department; }
+      public Department() { table = department; }
 
-       public Department(Table t) { super("Department",t); }
+      public Department(Table t) { super("Department",t); }
 
-       public Department(Tuple t) {  super("Department",t); }
+      public Department(Tuple t) {  super("Department",t); }
 
-       protected Department(String n, Table t) { super(n,t); }
+      protected Department(String n, Table t) { super(n,t); }
 
-       protected Department(String n, Tuple t) {  super(n,t); }
-
+      protected Department(String n, Tuple t) {  super(n,t); }
 
      public Person employs(){
          Table result1 = table.rightSemiJoin("did",employs_worksin,"Person");
@@ -108,28 +106,27 @@ public class Department extends common<Department> {
 
      public Division inDiv(){
          Table result1 = table.rightSemiJoin("did",hasdeps_indiv,"Person");
-         return new Division(result2);
-}
+         return new Division(result1);
+     }
 
 }
 
 public class Division extends common<Division> {
-      protected Division New(Table t) { return new Division(t); }
+     protected Division New(Table t) { return new Division(t); }
 
-       public Division() { table = division; }
+      public Division() { table = division; }
 
-       public Division(Table t) { super("Division",t); }
+      public Division(Table t) { super("Division",t); }
 
-       public Division(Tuple t) {  super("Division",t); }
+      public Division(Tuple t) {  super("Division",t); }
 
-       protected Division(String n, Table t) { super(n,t); }
+      protected Division(String n, Table t) { super(n,t); }
 
-       protected Division(String n, Tuple t) {  super(n,t); }
-
+      protected Division(String n, Tuple t) {  super(n,t); }
 
      public Department hasDeps(){
          Table result1 = table.rightSemiJoin("vid",hasdeps_indiv,"Person");
-         return new Department(result2);
+         return new Department(result1);
      }
 
 }
