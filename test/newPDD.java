@@ -69,23 +69,17 @@ abstract class common <T extends common> {
 
 
 public class Person extends common<Person> {
-     Table table;
+      protected Person New(Table t) { return new Person(t); }
 
-       protected Person() { }
+       public Person() { table = person; }
 
-       protected Person(String tableName, Tuple t) {
-          TableSchema ts = t.getSchema();
-          if (!ts.getName().equals(tableName)) 
-            throw new RuntimeException("assigning non-"+tableName+" table to "+tableName);
-          table = new Table(ts).add(t);
-       }
+       public Person(Table t) { super("Person",t); }
 
-       protected Person(String tableName, Table tab) {
-          if (!tab.getSchema().getName().equals(tableName)) {
-             throw new RuntimeException("assigning non-"+tableName+" table to "+tableName);
-          }
-          table = tab;
-        }
+       public Person(Tuple t) {  super("Person",t); }
+
+       protected Person(String n, Table t) { super(n,t); }
+
+       protected Person(String n, Tuple t) {  super(n,t); }
 
 
      public Department worksin(){
@@ -104,35 +98,29 @@ public class Person extends common<Person> {
          Table result1 = table.rightSemiJoin("pid",childrenof_parentsof,"Person");
          Table result2 = result1.rightSemiJoin("Person",person,"pid");
          return new Person(result2);
-}
+     }
 
 }
 
 public class Department extends common<Department> {
-     Table table;
+      protected Department New(Table t) { return new Department(t); }
 
-       protected Department() { }
+       public Department() { table = department; }
 
-       protected Department(String tableName, Tuple t) {
-          TableSchema ts = t.getSchema();
-          if (!ts.getName().equals(tableName)) 
-            throw new RuntimeException("assigning non-"+tableName+" table to "+tableName);
-          table = new Table(ts).add(t);
-       }
+       public Department(Table t) { super("Department",t); }
 
-       protected Department(String tableName, Table tab) {
-          if (!tab.getSchema().getName().equals(tableName)) {
-             throw new RuntimeException("assigning non-"+tableName+" table to "+tableName);
-          }
-          table = tab;
-        }
+       public Department(Tuple t) {  super("Department",t); }
+
+       protected Department(String n, Table t) { super(n,t); }
+
+       protected Department(String n, Tuple t) {  super(n,t); }
 
 
      public Person employs(){
          Table result1 = table.rightSemiJoin("did",employs_worksin,"Person");
          Table result2 = result1.rightSemiJoin("Person",person,"pid");
          return new Person(result2);
-}
+     }
 
      public Division inDiv(){
          Table result1 = table.rightSemiJoin("did",hasdeps_indiv,"Person");
@@ -142,29 +130,23 @@ public class Department extends common<Department> {
 }
 
 public class Division extends common<Division> {
-     Table table;
+      protected Division New(Table t) { return new Division(t); }
 
-       protected Division() { }
+       public Division() { table = division; }
 
-       protected Division(String tableName, Tuple t) {
-          TableSchema ts = t.getSchema();
-          if (!ts.getName().equals(tableName)) 
-            throw new RuntimeException("assigning non-"+tableName+" table to "+tableName);
-          table = new Table(ts).add(t);
-       }
+       public Division(Table t) { super("Division",t); }
 
-       protected Division(String tableName, Table tab) {
-          if (!tab.getSchema().getName().equals(tableName)) {
-             throw new RuntimeException("assigning non-"+tableName+" table to "+tableName);
-          }
-          table = tab;
-        }
+       public Division(Tuple t) {  super("Division",t); }
+
+       protected Division(String n, Table t) { super(n,t); }
+
+       protected Division(String n, Tuple t) {  super(n,t); }
 
 
      public Department hasDeps(){
          Table result1 = table.rightSemiJoin("vid",hasdeps_indiv,"Person");
          return new Department(result2);
-}
+     }
 
 }
 

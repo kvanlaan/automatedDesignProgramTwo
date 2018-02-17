@@ -31,7 +31,6 @@ public class Gen extends RunningBear {
         Marquee2Arguments mark = new Marquee2Arguments(Gen.class, ".vpl.pl", ".java", args);
         RBSetup(mark, args); // opens "X.classes.pl" database, as specified on the command line
         // variable db is the opened database
-        // file "X.java" is opened (or whatever command-line output is specified
         String inputFileName = mark.getInputFileName();
 
         DB db_vpl = DB.readDataBase(inputFileName);
@@ -70,8 +69,6 @@ public class Gen extends RunningBear {
 
         // done with class code
         footer();
-
-        // Step 4: done
     }
 
     static String findNameByType(Table table, String type) {
@@ -205,28 +202,19 @@ public class Gen extends RunningBear {
         String name = c.get("name");
         String xtends = "extends common<" + name + ">";
         l("public class %s %s {", c.get("name"), xtends);
-//        
-//        // Step 2: compute table of c's fields
-//        //
         List cfields = c.getColumns();
 
-        l("     Table table;\n"
+        l("      protected " + name + " New(Table t) { return new " + name + "(t); }\n"
                 + "\n"
-                + "       protected " + name + "() { }\n"
+                + "       public " + name + "() { table = " + name.toLowerCase() + "; }\n"
                 + "\n"
-                + "       protected " + name + "(String tableName, Tuple t) {\n"
-                + "          TableSchema ts = t.getSchema();\n"
-                + "          if (!ts.getName().equals(tableName)) \n"
-                + "            throw new RuntimeException(\"assigning non-\"+tableName+\" table to \"+tableName);\n"
-                + "          table = new Table(ts).add(t);\n"
-                + "       }\n"
+                + "       public " + name + "(Table t) { super(\"" + name + "\",t); }\n"
                 + "\n"
-                + "       protected " + name + "(String tableName, Table tab) {\n"
-                + "          if (!tab.getSchema().getName().equals(tableName)) {\n"
-                + "             throw new RuntimeException(\"assigning non-\"+tableName+\" table to \"+tableName);\n"
-                + "          }\n"
-                + "          table = tab;\n"
-                + "        }\n"
+                + "       public " + name + "(Tuple t) {  super(\"" + name + "\",t); }\n"
+                + "\n"
+                + "       protected " + name + "(String n, Table t) { super(n,t); }\n"
+                + "\n"
+                + "       protected " + name + "(String n, Tuple t) {  super(n,t); }\n"
                 + "\n");
 //    }
 
@@ -258,7 +246,7 @@ public class Gen extends RunningBear {
                     l("         Table result2 = result1.rightSemiJoin(\"" + retType + "\"," + retType.toLowerCase() + ",\"" + retTypeFieldId + "\");");
                 }
                 l("         return new " + retType + "(result2);\n"
-                        + "}\n");
+                        + "     }\n");
             }
         }
         l("}");
