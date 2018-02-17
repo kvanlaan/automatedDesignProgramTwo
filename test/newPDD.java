@@ -11,6 +11,22 @@ import java.util.function.Predicate;
 
 public class PDD {
 
+	DB db;
+	public Table Person;
+	public Table Department;
+	public Table Division;
+	public Table employs_worksin;
+	public Table childrenOf_parentsOf;
+
+	public PDD(String fileName) {
+		db = DB.readDataBase(fileName);
+		person = db.getTableEH("Person");
+		department = db.getTableEH("Department");
+		division = db.getTableEH("Division");
+		employs_worksin = db.getTableEH("employs_worksin");
+		childrenof_parentsof = db.getTableEH("childrenOf_parentsOf");
+	}
+
 abstract class common <T extends common> {
 ///commonT
        Table table;
@@ -52,88 +68,36 @@ abstract class common <T extends common> {
 ///commonT
 
 
-public class Person extends common<Person> {
-     Table table;
+	public class employs_worksin extends common <employs_worksin> {
 
-       protected Person() { }
+		protected employs_worksin New(Table t) { return new employs_worksin(t);}
 
-       protected Person(String tableName, Tuple t) {
-          TableSchema ts = t.getSchema();
-          if (!ts.getName().equals(tableName)) 
-            throw new RuntimeException("assigning non-"+tableName+" table to "+tableName);
-          table = new Table(ts).add(t);
-       }
+		public employs_worksin() {table = employs_worksin;}
 
-       protected Person(String tableName, Table tab) {
-          if (!tab.getSchema().getName().equals(tableName)) {
-             throw new RuntimeException("assigning non-"+tableName+" table to "+tableName);
-          }
-          table = tab;
-        }
+		public employs_worksin(Table t) { super("employs_worksin", t); }
 
+		public employs_worksin(Tuple t) { super("employs_worksin", t); }
 
-     public Person childrenOf{
-;          Table result1 = table.rightSemiJoin("pid",employs_worksin,"Person");
-          Table result2 = result1.rightSemiJoin("Department",department,"did");
-          return new Department(result2);
-       }
-   
-}
+		protected employs_worksin(String n, Table t) { super(n,t);}
 
-public class Department extends common<Department> {
-     Table table;
+		protected employs_worksin(String n, Tuple t) { super(n,t);}
 
-       protected Department() { }
+	}
 
-       protected Department(String tableName, Tuple t) {
-          TableSchema ts = t.getSchema();
-          if (!ts.getName().equals(tableName)) 
-            throw new RuntimeException("assigning non-"+tableName+" table to "+tableName);
-          table = new Table(ts).add(t);
-       }
+	public class childrenOf_parentsOf extends common <childrenOf_parentsOf> {
 
-       protected Department(String tableName, Table tab) {
-          if (!tab.getSchema().getName().equals(tableName)) {
-             throw new RuntimeException("assigning non-"+tableName+" table to "+tableName);
-          }
-          table = tab;
-        }
+		protected childrenOf_parentsOf New(Table t) { return new childrenOf_parentsOf(t);}
 
+		public childrenOf_parentsOf() {table = childrenOf_parentsOf;}
 
-     public Person employs{
-;          Table result1 = table.rightSemiJoin("pid",employs_worksin,"Person");
-          Table result2 = result1.rightSemiJoin("Department",department,"did");
-          return new Department(result2);
-       }
-   
-}
+		public childrenOf_parentsOf(Table t) { super("childrenOf_parentsOf", t); }
 
-public class Division extends common<Division> {
-     Table table;
+		public childrenOf_parentsOf(Tuple t) { super("childrenOf_parentsOf", t); }
 
-       protected Division() { }
+		protected childrenOf_parentsOf(String n, Table t) { super(n,t);}
 
-       protected Division(String tableName, Tuple t) {
-          TableSchema ts = t.getSchema();
-          if (!ts.getName().equals(tableName)) 
-            throw new RuntimeException("assigning non-"+tableName+" table to "+tableName);
-          table = new Table(ts).add(t);
-       }
+		protected childrenOf_parentsOf(String n, Tuple t) { super(n,t);}
 
-       protected Division(String tableName, Table tab) {
-          if (!tab.getSchema().getName().equals(tableName)) {
-             throw new RuntimeException("assigning non-"+tableName+" table to "+tableName);
-          }
-          table = tab;
-        }
-
-
-     public Department hasDeps{
-;          Table result1 = table.rightSemiJoin("pid",employs_worksin,"Person");
-          Table result2 = result1.rightSemiJoin("Department",department,"did");
-          return new Department(result2);
-       }
-   
-}
+	}
 
 }

@@ -91,7 +91,7 @@ public class ClassConform extends Constraints {
 //        expl = "association should not have a middleLabel";
 //        iftest(vAssociation,misEmpty,expl,er);
 
-        // C12 middleLabel should never be numbers
+        // C12 middleLabel should never be cardinalities
         Predicate<Tuple> misNumber = r -> {
             String label = r.get("middleLabel");
             
@@ -106,7 +106,7 @@ public class ClassConform extends Constraints {
                return false;
             }
         };
-        expl = "MiddleLabel should never be pure numbers";
+        expl = "MiddleLabel should never be cardinalities";
         iftest(vAssociation, misNumber, expl, er);
         
         // C13 middleLabel and rolenames cannot co-exist
